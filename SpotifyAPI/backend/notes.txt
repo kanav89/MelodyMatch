@@ -1,0 +1,9 @@
+1) Get token
+Follow a particular format which is given in the documentation to request the token.
+
+2) Our API call includes the access token using a authorization header
+
+3) We use the requests module in python to get data
+get,post,etc
+x = get(url, headers=headers)
+this gives the output in a json file
