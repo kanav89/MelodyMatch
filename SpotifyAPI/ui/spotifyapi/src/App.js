@@ -2,14 +2,13 @@ import React from "react";
 import { Route, Switch, BrowserRouter as Router } from "react-router-dom";
 import First from "./Components/First";
 import PlaylistForm from "./Components/PlaylistForm";
-import PlaylistResults from "./Components/PlaylistResults";
 import { Navbar, NavbarBrand } from "flowbite-react";
 import p from "./Spotify_App_Logo.svg.png";
 
 function App() {
   return (
     <Router>
-      <div className="scroll-y-auto app">
+      <div className="app">
         <Navbar className="nav">
           <NavbarBrand>
             <img
@@ -23,15 +22,8 @@ function App() {
           </NavbarBrand>
         </Navbar>
         <Switch>
-          <Route exact path="/">
-            <First />
-          </Route>
-          <Route path="/form">
-            <PlaylistForm />
-          </Route>
-          <Route path="/results">
-            <PlaylistResults />
-          </Route>
+          <Route exact path="/" component={First} />
+          <Route path="/form" component={PlaylistForm} />
         </Switch>
       </div>
     </Router>

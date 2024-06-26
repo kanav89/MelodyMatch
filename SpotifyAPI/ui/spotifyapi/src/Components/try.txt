@@ -1,0 +1,19 @@
+// const savePlaylist = async () => {
+  //   try {
+  //     for (let i = 0; i < fetchedData.length; i++) {
+  //       const requestOptions = {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ name: fetchedData[i][0] }),
+  //       };
+  //       const response = await fetch("/save", requestOptions);
+  //       if (!response.ok) {
+  //         throw new Error("Failed to save playlist item");
+  //       }
+  //     }
+  //     alert("All playlist items saved successfully!");
+  //   } catch (error) {
+  //     console.error("Error saving playlist:", error);
+  //     alert("Failed to save playlist items");
+  //   }
+  // };
