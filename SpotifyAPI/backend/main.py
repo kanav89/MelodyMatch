@@ -1,57 +1,28 @@
 import base64
-import json
 import os
-from typing import Annotated, List, Optional
+from urllib.parse import urlencode
 
-import database
-import models
-import oauth2
+import requests
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-from passlib.context import CryptContext
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, EmailStr
-from requests import get, post
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
 
 load_dotenv()
 
+client_id = os.getenv("CLIENT_ID")
+client_secret = os.getenv("CLIENT_SECRET")
+redirect_uri = "http://127.0.0.1:8000/callback"
+
 app = FastAPI()
-models.Base.metadata.create_all(bind=database.engine)
 
 # Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-class PlaylistBase(BaseModel):
-    name: str
-
-
-class CreateUserBase(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class Token(BaseModel):
-    access_token: str
-    password: str
-
-
-class TokenData(BaseModel):
-    id: Optional[str] = None
 
 
 class SongRecommendation:
     def __init__(self, artist_na, artist_na2, genre, mood):
-        self.client_id = os.getenv("CLIENT_ID")
-        self.client_secret = os.getenv("CLIENT_SECRET")
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.artist_na = artist_na
         self.artist_na2 = artist_na2
         self.genre = genre
@@ -70,11 +41,14 @@ class SongRecommendation:
             "Content-Type": "application/x-www-form-urlencoded",
         }
         data = {"grant_type": "client_credentials"}
-        result = post(url, headers=headers, data=data)
+        result = requests.post(url, headers=headers, data=data)
         result.raise_for_status()
         json_result = result.json()
         self.token = json_result["access_token"]
         return self.token
+
+    def set_access_token(self, access_token):
+        self.token = access_token
 
     def initialize(self):
         if self.mood == "Happy":
@@ -112,7 +86,7 @@ class SongRecommendation:
     def search_for_artist(self, artist_name):
         url = f"https://api.spotify.com/v1/search?q={artist_name}&type=artist&limit=1"
         header = self.get_auth_header()
-        result = get(url, headers=header)
+        result = requests.get(url, headers=header)
         result.raise_for_status()
         json_result = result.json()["artists"]["items"]
         if not json_result:
@@ -122,9 +96,13 @@ class SongRecommendation:
     def get_recommendations(
         self, artist_id, seed_genre, min_valence, max_valence, min_danceability, max_danceability
     ):
-        url = f"https://api.spotify.com/v1/recommendations?limit=20&seed_artists={artist_id}&seed_genres={seed_genre}&min_valence={min_valence}&max_valence={max_valence}&min_danceability={min_danceability}&max_danceability={max_danceability}&market=IN"
+        url = (
+            f"https://api.spotify.com/v1/recommendations?limit=20&seed_artists={artist_id}"
+            f"&seed_genres={seed_genre}&min_valence={min_valence}&max_valence={max_valence}"
+            f"&min_danceability={min_danceability}&max_danceability={max_danceability}&market=IN"
+        )
         header = self.get_auth_header()
-        result = get(url, headers=header)
+        result = requests.get(url, headers=header)
         result.raise_for_status()
         return result.json()
 
@@ -151,10 +129,11 @@ def output(artist_na: str, artist_na2: str, genre: str, mood: str):
         )
         result = [
             {
-                "track": f"{idx+1}. {track['name']} by {track['artists'][0]['name']}",
+                "track": track["name"],
+                "artist": track["artists"][0]["name"],
                 "link": track["album"]["external_urls"]["spotify"],
             }
-            for idx, track in enumerate(songs["tracks"])
+            for track in songs["tracks"]
         ]
         return JSONResponse(content=result)
     except HTTPException as e:
@@ -163,55 +142,44 @@ def output(artist_na: str, artist_na2: str, genre: str, mood: str):
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
-db_dependency = Annotated[Session, Depends(database.get_db)]
+@app.get("/login")
+async def login():
+    return RedirectResponse(
+        f"https://accounts.spotify.com/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}",
+        status_code=302,
+    )
 
 
-@app.post("/save")
-def save_recommendations(playlist: PlaylistBase, db: db_dependency):
-    try:
-        db_playlist = models.Playlist(name=playlist.name)
-        db.add(db_playlist)
-        db.commit()
-        db.refresh(db_playlist)
-        return JSONResponse(content={"message": "Playlist saved successfully"})
-    except Exception as e:
-        db.rollback()
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+@app.get("/callback")
+async def callback(request: Request):
+    code = request.query_params.get("code")
 
+    auth_options = {
+        "url": "https://accounts.spotify.com/api/token",
+        "data": {
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+        },
+        "headers": {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic "
+            + base64.b64encode(f"{client_id}:{client_secret}".encode()).decode(),
+        },
+    }
 
-@app.post("/user")
-def create_user(user: CreateUserBase, db: db_dependency):
-    try:
-        hashed_password = pwd_context.hash(user.password)
-        db_user = models.User(email=user.email, password=hashed_password)
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return JSONResponse(content={"message": "User Created successfully"})
-    except Exception as e:
-        db.rollback()
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    response = requests.post(
+        auth_options["url"], data=auth_options["data"], headers=auth_options["headers"]
+    )
 
-
-@app.get("/user/{id}")
-def get_user(id: int, db: db_dependency):
-    user = db.query(models.User).filter(models.User.id == id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail=f"User with id: {id} does not exist")
-    return user
-
-
-@app.post("/login")
-def login(
-    user_credentials: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(database.get_db),
-):
-    user = db.query(models.User).filter(models.User.email == user_credentials.username).first()
-    if not user:
-        raise HTTPException(
-            status_code=404, detail=f"User with email {user_credentials.username} does not exist"
-        )
-    if not pwd_context.verify(user_credentials.password, user.password):
-        raise HTTPException(status_code=401, detail="Incorrect password")
-    access_token = oauth2.create_access_token(data={"user_id": user.id})
-    return {"access_token": access_token, "token_type": "bearer"}
+    if response.status_code == 200:
+        body = response.json()
+        access_token = body["access_token"]
+        refresh_token = body["refresh_token"]
+        print(access_token)
+        response = RedirectResponse(url=f"http://127.0.0.1:3000/form?access_token={access_token}")
+        response.set_cookie(key="access_token", value=access_token, httponly=True)
+        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True)
+        return response
+    else:
+        return {"error": "Failed to get token"}
