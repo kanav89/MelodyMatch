@@ -1,71 +1,135 @@
 import React, { useState, useEffect } from "react";
-import { Dropdown, TextInput, Button, Label } from "flowbite-react";
 import { useLocation } from "react-router-dom";
+import { Dropdown, TextInput, Button, Label } from "flowbite-react";
+import { useSafeLayoutEffect } from "@chakra-ui/react";
 
 function PlaylistForm() {
   const [artist_na, setArtist_na] = useState("");
   const [artist_na2, setArtist_na2] = useState("");
-  const [genre, setGenre] = useState("");
+  const [genre, setGenre] = useState(""); // Store the selected genre value
   const [mood, setMood] = useState("");
   const [fetchedData, setFetchedData] = useState([]);
   const [showList, setShowList] = useState(false);
-
-  const location = useLocation();
+  const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
+  const [uri, seturi] = useState([]);
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const accessToken = queryParams.get("access_token");
-
-    if (accessToken) {
-      console.log("Access Token:", accessToken);
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    if (accessToken && refreshToken) {
+      setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
       localStorage.setItem("access_token", accessToken);
+      localStorage.setItem("refresh_token", refreshToken);
+      startTokenRefreshTimer();
     }
-  }, [location]);
+  }, []);
+
+  useEffect(() => {
+    if (refreshToken) {
+      startTokenRefreshTimer();
+    }
+  }, [refreshToken]);
+
+  const startTokenRefreshTimer = () => {
+    setInterval(() => {
+      handleTokenRefresh();
+    }, 1000 * 60 * 30); // Refresh every 30 minutes
+  };
+
+  const handleTokenRefresh = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    console.log("Refresh Token", refreshToken);
+    try {
+      const res = await fetch(`/refresh-token?refresh_token=${refreshToken}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Refresh-Token": refreshToken,
+        },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to refresh access token");
+      }
+      const data = await res.json();
+      setAccessToken(data.access_token);
+      localStorage.setItem("access_token", data.access_token);
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      // Handle token refresh error here (e.g., logout user, show error message)
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Loading...");
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+    console.log("Refresh Token", refreshToken);
+    console.log("Access Token", accessToken);
 
-    const accessToken = localStorage.getItem("access_token");
-    const refreshToken = localStorage.getItem("refresh_token");
-
-    if (!accessToken) {
-      console.error("Access token or refresh token not found");
-      return;
-    }
-
-    const apiUrl = `/recommendations?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}`;
-    console.log("API URL:", apiUrl);
+    const apiUrl = `/recommendations?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}`;
 
     try {
       const res = await fetch(apiUrl, {
-        method: "GET",
+        method: "Get",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+          "Refresh-Token": refreshToken,
         },
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          // Redirect to homepage if 401 error occurs
+          window.location.href = "/";
+          return;
+        }
         alert(`HTTP error Status: ${res.status}`);
         return;
       }
-
+      const uri = [];
       const data = await res.json();
       console.log("Data:", data);
+      for (let i = 0; i < data.length; i++) {
+        uri.push(data[i].uri);
+      }
+      console.log(uri);
+      seturi(uri);
       setFetchedData(data);
-      setShowList(true);
+      setShowList(true); // Display the list
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
+  const savePlaylist = async () => {
+    try {
+      const response = await fetch(
+        `/save?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}&uri=${uri}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to save playlist item");
+      }
+      alert("All playlist items saved successfully!");
+    } catch (error) {
+      console.error("Error saving playlist:", error);
+      alert("Failed to save playlist items");
+    }
+  };
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#1DB954] to-[#191414] px-4 py-12 md:px-6 lg:py-18">
       <div className="mx-auto flex max-w-3xl flex-col items-center justify-center space-y-6 text-center">
         <h1 className="text-5xl font-bold text-white sm:text-6xl md:text-7xl">
           Curate your own playlist!
         </h1>
+        <Button onClick={handleTokenRefresh} />
         <form className="w-full space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -95,43 +159,42 @@ function PlaylistForm() {
               />
             </div>
           </div>
-          <div className="flex flex-col items-center justify-content">
+          <div>
             <Label htmlFor="mood" className="text-white">
-              Your Mood
+              Current mood
             </Label>
-            <div className="">
-              <Dropdown
-                className="bg-white"
-                size="lg"
-                pill
-                label="Select your mood"
-                onSelect={(value) => setMood(value)}
-                color="light"
+            <div className="flex flex-col items-center justify-content">
+              <select
+                id="mood"
+                value={mood}
+                onChange={(e) => setMood(e.target.value)}
+                className="bg-white border border-gray-300 rounded-md p-2 mt-1 block w-full"
               >
-                <Dropdown.Item value="happy">Happy</Dropdown.Item>
-                <Dropdown.Item value="sad">Sad</Dropdown.Item>
-                <Dropdown.Item value="energetic">Energetic</Dropdown.Item>
-                <Dropdown.Item value="relaxed">Relaxed</Dropdown.Item>
-              </Dropdown>
+                <option value="">Select a mood</option>
+                <option value="pop">Happy</option>
+                <option value="rock">Sad</option>
+                <option value="hip-hop">Dance</option>
+              </select>
             </div>
           </div>
+
           <div>
             <Label htmlFor="genre" className="text-white">
               Favorite Genre
             </Label>
             <div className="flex flex-col items-center justify-content">
-              <Dropdown
-                color="light"
-                size="lg"
-                pill
-                label="Select your favorite genre"
-                onSelect={(value) => setGenre(value)}
+              <select
+                id="genre"
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                className="bg-white border border-gray-300 rounded-md p-2 mt-1 block w-full"
               >
-                <Dropdown.Item value="pop">Pop</Dropdown.Item>
-                <Dropdown.Item value="rock">Rock</Dropdown.Item>
-                <Dropdown.Item value="hip-hop">Hip-Hop</Dropdown.Item>
-                <Dropdown.Item value="electronic">Electronic</Dropdown.Item>
-              </Dropdown>
+                <option value="">Select a genre</option>
+                <option value="pop">Pop</option>
+                <option value="rock">Rock</option>
+                <option value="hip-hop">Hip-Hop</option>
+                <option value="electronic">Electronic</option>
+              </select>
             </div>
           </div>
           <div>
@@ -141,7 +204,6 @@ function PlaylistForm() {
               variant="outline"
               className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3 text-lg font-medium text-[#191414] transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
             >
-              <AirplayIcon className="mr-2 h-6 w-6" />
               Generate Playlist
             </Button>
           </div>
@@ -170,30 +232,12 @@ function PlaylistForm() {
               </div>
             ))}
           </div>
-          {/* <Button className="mt-4">Save Playlist</Button> */}
+          <Button onClick={savePlaylist} className="mt-4" pill>
+            Save Playlist
+          </Button>
         </div>
       )}
     </main>
-  );
-}
-
-function AirplayIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1" />
-      <path d="m12 15 5 6H7Z" />
-    </svg>
   );
 }
 

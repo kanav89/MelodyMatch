@@ -1,7 +1,7 @@
 .app{
   
   width: 100vw;
-    height: 100vh;
+    height: 100%;
     max-width:100%; 
   background: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
   
@@ -9,9 +9,10 @@
 
 .nav{
 
-  /* background-color: antiquewhite; */
+  background-color: black;
   overflow: hidden;
   width: 100vh;
+  background-color: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
 }
 
 

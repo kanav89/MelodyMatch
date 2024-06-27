@@ -9,18 +9,6 @@ function App() {
   return (
     <Router>
       <div className="app">
-        <Navbar className="nav">
-          <NavbarBrand>
-            <img
-              src={p}
-              className="mr-3 ml-2 my-1 h-4 sm:h-7"
-              alt="Flowbite React Logo"
-            />
-            <span className="self-center whitespace-nowrap text-xl font-bold dark:text-white">
-              MelodyMatch
-            </span>
-          </NavbarBrand>
-        </Navbar>
         <Switch>
           <Route exact path="/" component={First} />
           <Route path="/form" component={PlaylistForm} />
