@@ -75,6 +75,7 @@ function PlaylistForm() {
     const apiUrl = `/recommendations?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}`;
 
     try {
+      console.log("one");
       const res = await fetch(apiUrl, {
         method: "Get",
         headers: {
@@ -82,7 +83,7 @@ function PlaylistForm() {
           "Refresh-Token": refreshToken,
         },
       });
-
+      console.log("two");
       if (!res.ok) {
         <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
           <span className="font-medium">Check all fields!</span>

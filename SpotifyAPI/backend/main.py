@@ -194,14 +194,12 @@ def output(
     # if authorization is None:
     #     raise HTTPException(status_code=401, detail="Authorization header missing")
 
-    print(access_token)
+    # print(access_token)
     song_instance = SongRecommendation(artist_na, artist_na2, genre, mood)
     song_instance.set_access_token(access_token)
 
     try:
-        print("one")
         song_instance.set_access_token(access_token=access_token)
-        print(access_token)
         result = song_instance.search_for_artist(artist_na)
 
         result2 = song_instance.search_for_artist(artist_na2)
@@ -209,7 +207,6 @@ def output(
             raise HTTPException(status_code=404, detail="Artist not found")
 
         artist_id = f"{result['id']},{result2['id']}"
-        print("one")
         songs = song_instance.get_recommendations(
             artist_id,
             genre,
@@ -218,7 +215,6 @@ def output(
             song_instance.min_danceability,
             song_instance.max_danceability,
         )
-        print("one")
         result = [
             {
                 "track": track["name"],
