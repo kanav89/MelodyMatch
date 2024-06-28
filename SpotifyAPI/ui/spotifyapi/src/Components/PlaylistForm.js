@@ -84,45 +84,39 @@ function PlaylistForm() {
         },
       });
       console.log("two");
-      if (!res.ok) {
-        alert("error");
-        // <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
-        //   <span className="font-medium">Check all fields!</span>
-        // </Alert>;
-        if (res.status === 401) {
-          // Redirect to homepage if 401 error occurs
-          window.location.href = "/";
-          return;
-        }
-        alert("error2");
-        // <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
-        //   <span className="font-medium">Check all fields!</span>
-        // </Alert>;
-        console.log("two");
-        return;
-      }
-      const uri = [];
-      const data = await res.json();
-      console.log("two");
-      console.log("Data:", data);
-      console.log("three");
-      for (let i = 0; i < data.length; i++) {
-        uri.push(data[i].uri);
-      }
-      console.log("two");
-      console.log(uri);
-      console.log("two");
-      seturi(uri);
-      console.log("two");
-      setFetchedData(data);
-      console.log("two");
-      setShowList(true); // Display the list
-      console.log("two");
+      // if (!res.ok) {
+      //   alert("error");
+
+      //   if (res.status === 401) {
+      //     // Redirect to homepage if 401 error occurs
+      //     window.location.href = "/";
+      //     return;
+      //   }
+      //   alert("error2");
+
+      //   console.log("two");
+      //   return;
+      // }
+      // const uri = [];
+      // const data = await res.json();
+      // console.log("two");
+      // console.log("Data:", data);
+      // console.log("three");
+      // for (let i = 0; i < data.length; i++) {
+      //   uri.push(data[i].uri);
+      // }
+      // console.log("two");
+      // console.log(uri);
+      // console.log("two");
+      // seturi(uri);
+      // console.log("two");
+      // setFetchedData(data);
+      // console.log("two");
+      // setShowList(true); // Display the list
+      // console.log("two");
     } catch (error) {
       console.log("hi");
-      <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
-        <span className="font-medium">Check all fields!</span>
-      </Alert>;
+
       console.error("Error fetching data:", error);
     }
   };
