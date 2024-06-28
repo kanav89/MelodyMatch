@@ -16,7 +16,7 @@ load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
-redirect_uri = "http://127.0.0.1:8000/callback"
+redirect_uri = os.getenv("REDIRECT_URI")
 
 app = FastAPI()
 
@@ -275,7 +275,7 @@ async def callback(request: Request) -> RedirectResponse:
         refresh_token = body["refresh_token"]
         print(f"Access Token : {access_token}")
         redirect_response = RedirectResponse(
-            url=f"http://127.0.0.1:3000/form?access_token={access_token}&refresh_token={refresh_token}"
+            url=f"https://melody-match-api.vercel.app/form?access_token={access_token}&refresh_token={refresh_token}"
         )
 
         return redirect_response

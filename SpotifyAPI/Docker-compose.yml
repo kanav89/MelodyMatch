@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.8' #change proxy to backend:8000 in package.json
 services:
   backend:
     env_file:
