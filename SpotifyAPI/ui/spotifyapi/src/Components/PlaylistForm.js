@@ -84,19 +84,19 @@ function PlaylistForm() {
         },
       });
       console.log("two");
-      // if (!res.ok) {
-      //   alert("error");
+      if (!res.ok) {
+        alert("error");
 
-      //   if (res.status === 401) {
-      //     // Redirect to homepage if 401 error occurs
-      //     window.location.href = "/";
-      //     return;
-      //   }
-      //   alert("error2");
+        if (res.status === 401) {
+          // Redirect to homepage if 401 error occurs
+          window.location.href = "/";
+          return;
+        }
+        alert("error2");
 
-      //   console.log("two");
-      //   return;
-      // }
+        console.log("two");
+        return;
+      }
       // const uri = [];
       // const data = await res.json();
       // console.log("two");
