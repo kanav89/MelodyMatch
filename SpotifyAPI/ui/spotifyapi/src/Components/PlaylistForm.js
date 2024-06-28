@@ -85,17 +85,19 @@ function PlaylistForm() {
       });
       console.log("two");
       if (!res.ok) {
-        <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
-          <span className="font-medium">Check all fields!</span>
-        </Alert>;
+        alert("error");
+        // <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
+        //   <span className="font-medium">Check all fields!</span>
+        // </Alert>;
         if (res.status === 401) {
           // Redirect to homepage if 401 error occurs
           window.location.href = "/";
           return;
         }
-        <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
-          <span className="font-medium">Check all fields!</span>
-        </Alert>;
+        alert("error2");
+        // <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
+        //   <span className="font-medium">Check all fields!</span>
+        // </Alert>;
         console.log("two");
         return;
       }
