@@ -1,7 +1,6 @@
 import React from "react";
 import "./First.css";
 import { Button } from "flowbite-react";
-import { useHistory } from "react-router-dom";
 
 function First() {
   const handleLogin = () => {

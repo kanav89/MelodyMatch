@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { Dropdown, TextInput, Button, Label } from "flowbite-react";
+import { TextInput, Button, Label, Alert } from "flowbite-react";
 
 function PlaylistForm() {
   const [artist_na, setArtist_na] = useState("");
@@ -40,7 +39,6 @@ function PlaylistForm() {
 
   const handleTokenRefresh = async () => {
     const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
     console.log("Refresh Token", refreshToken);
     try {
@@ -86,12 +84,17 @@ function PlaylistForm() {
       });
 
       if (!res.ok) {
+        <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
+          <span className="font-medium">Check all fields!</span>
+        </Alert>;
         if (res.status === 401) {
           // Redirect to homepage if 401 error occurs
           window.location.href = "/";
           return;
         }
-        alert(`HTTP error Status: ${res.status}`);
+        <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
+          <span className="font-medium">Check all fields!</span>
+        </Alert>;
         return;
       }
       const uri = [];
@@ -105,6 +108,10 @@ function PlaylistForm() {
       setFetchedData(data);
       setShowList(true); // Display the list
     } catch (error) {
+      console.log("hi");
+      <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
+        <span className="font-medium">Check all fields!</span>
+      </Alert>;
       console.error("Error fetching data:", error);
     }
   };
@@ -114,9 +121,16 @@ function PlaylistForm() {
         `/save?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}&uri=${uri}`
       );
       if (!response.ok) {
-        throw new Error("Failed to save playlist item");
+        <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
+          <span className="font-medium">Check all fields!</span>
+        </Alert>;
+        console.log("Failed to save playlist item");
       }
-      alert("All playlist items saved successfully!");
+      console.log("hi");
+      <Alert color="warning" rounded>
+        <span className="font-medium">Info alert!</span> Change a few things up
+        and try submitting again.
+      </Alert>;
     } catch (error) {
       console.error("Error saving playlist:", error);
       alert("Failed to save playlist items");
