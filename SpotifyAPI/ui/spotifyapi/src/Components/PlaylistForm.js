@@ -97,10 +97,10 @@ function PlaylistForm() {
         console.log("two");
         return;
       }
-      // const uri = [];
-      // const data = await res.json();
-      // console.log("two");
-      // console.log("Data:", data);
+      const uri = [];
+      const data = await res.json();
+      console.log("two");
+      console.log("Data:", data);
       // console.log("three");
       // for (let i = 0; i < data.length; i++) {
       //   uri.push(data[i].uri);
