@@ -4,7 +4,7 @@ import { Button } from "flowbite-react";
 
 function First() {
   const handleLogin = () => {
-    window.location.href = "http://127.0.0.1:8000/login"; // Redirect to Spotify login
+    window.location.href = "https://melody-match-api.vercel.app/login"; // Redirect to Spotify login
   };
 
   return (
