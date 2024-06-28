@@ -110,7 +110,7 @@ function PlaylistForm() {
       // console.log("two");
       // seturi(uri);
       // console.log("two");
-      // setFetchedData(data);
+      setFetchedData(data);
       // console.log("two");
       // setShowList(true); // Display the list
       // console.log("two");
