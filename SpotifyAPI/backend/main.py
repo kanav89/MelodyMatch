@@ -269,7 +269,7 @@ async def callback(request: Request) -> RedirectResponse:
     )
 
     if response.status_code == 200:
-        print(f"Existing Cookies: {request.cookies}")
+
         body = response.json()
         access_token = body["access_token"]
         refresh_token = body["refresh_token"]
@@ -292,13 +292,11 @@ async def save_playlist(
     access_token: Optional[str] = Query(None),
     uri: Optional[str] = Query(None),
 ):
-    print(access_token)
+
     # Create instance of SongRecommendation class
     song_instance = SongRecommendation(artist_na, artist_na2, genre, mood)
     song_instance.set_access_token(access_token)
-    print("")
-    print("\n\n")
-    print(uri)
+
     try:
 
         # Get recommendations
@@ -316,11 +314,6 @@ async def save_playlist(
             song_instance.min_danceability,
             song_instance.max_danceability,
         )
-
-        # Extract track URIs from recommendations
-        # track_uris = [track["uri"] for track in songs["tracks"]]
-        # print(track_uris)
-        # Add tracks to the playlist
 
         song_instance.add_tracks_to_playlist(uri.split(","))
 
