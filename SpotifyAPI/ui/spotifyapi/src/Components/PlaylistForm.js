@@ -143,7 +143,7 @@ function PlaylistForm() {
           Curate your own playlist!
         </h1>
         <Button onClick={handleTokenRefresh} />
-        <div className="w-full space-y-6">
+        <form className="w-full space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="artist1" className="text-white">
@@ -212,7 +212,6 @@ function PlaylistForm() {
           </div>
           <div>
             <Button
-              onSubmit={handleSubmit}
               color="light"
               type="submit"
               variant="outline"
@@ -221,7 +220,7 @@ function PlaylistForm() {
               Generate Playlist
             </Button>
           </div>
-        </div>
+        </form>
       </div>
 
       {showList && (
