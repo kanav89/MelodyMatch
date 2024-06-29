@@ -42,13 +42,16 @@ function PlaylistForm() {
     const refreshToken = params.get("refresh_token");
     console.log("Refresh Token", refreshToken);
     try {
-      const res = await fetch(`/refresh-token?refresh_token=${refreshToken}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Refresh-Token": refreshToken,
-        },
-      });
+      const res = await fetch(
+        `https://melody-match-api.vercel.app/refresh-token?refresh_token=${refreshToken}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Refresh-Token": refreshToken,
+          },
+        }
+      );
       if (!res.ok) {
         throw new Error("Failed to refresh access token");
       }
@@ -89,7 +92,7 @@ function PlaylistForm() {
 
         if (res.status === 401) {
           // Redirect to homepage if 401 error occurs
-          window.location.href = "/";
+          window.location.href = "https://melody-match-api.vercel.app/";
           return;
         }
         alert("error2");
@@ -125,19 +128,14 @@ function PlaylistForm() {
   const savePlaylist = async () => {
     try {
       const response = await fetch(
-        `/save?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}&uri=${uri}`
+        `https://melody-match-api.vercel.app/save?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}&uri=${uri}`
       );
       if (!response.ok) {
-        <Alert color="failure" onDismiss={() => alert("Alert dismissed!")}>
-          <span className="font-medium">Check all fields!</span>
-        </Alert>;
+        alert("Not ok! ");
         console.log("Failed to save playlist item");
       }
       console.log("hi");
-      <Alert color="warning" rounded>
-        <span className="font-medium">Info alert!</span> Change a few things up
-        and try submitting again.
-      </Alert>;
+      alert("All items saved successfully");
     } catch (error) {
       console.error("Error saving playlist:", error);
       alert("Failed to save playlist items");
