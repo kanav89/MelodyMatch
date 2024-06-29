@@ -71,8 +71,8 @@ function PlaylistForm() {
     setRefreshToken(refreshToken);
     console.log("Refresh Token", refreshToken);
     console.log("Access Token", accessToken);
-
-    const apiUrl = `/recommendations?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}`;
+    // added https://melody-match-api.vercel.app
+    const apiUrl = `https://melody-match-api.vercel.app/recommendations?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}`;
 
     try {
       console.log("one");
