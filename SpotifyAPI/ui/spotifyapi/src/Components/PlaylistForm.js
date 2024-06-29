@@ -94,9 +94,11 @@ function PlaylistForm() {
         }
         alert("error2");
 
-        console.log("two");
+        console.log("Response received", res);
         return;
       }
+      const responseText = await res.text();
+      console.log("Response Text:", responseText);
       const uri = [];
       const data = await res.json();
       console.log("two");
