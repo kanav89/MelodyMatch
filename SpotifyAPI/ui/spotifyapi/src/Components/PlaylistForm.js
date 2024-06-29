@@ -97,24 +97,24 @@ function PlaylistForm() {
         console.log("Response received", res);
         return;
       }
-      const responseText = await res.text();
-      console.log("Response Text:", responseText);
+      // const responseText = await res.text();
+      // console.log("Response Text:", responseText);
       const uri = [];
       const data = await res.json();
       console.log("two");
       console.log("Data:", data);
       // console.log("three");
-      // for (let i = 0; i < data.length; i++) {
-      //   uri.push(data[i].uri);
-      // }
+      for (let i = 0; i < data.length; i++) {
+        uri.push(data[i].uri);
+      }
       // console.log("two");
       // console.log(uri);
       // console.log("two");
-      // seturi(uri);
+      seturi(uri);
       // console.log("two");
       setFetchedData(data);
       // console.log("two");
-      // setShowList(true); // Display the list
+      setShowList(true); // Display the list
       // console.log("two");
     } catch (error) {
       console.log("hi");
