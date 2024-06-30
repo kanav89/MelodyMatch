@@ -16,13 +16,13 @@ function PlaylistForm() {
     const params = new URLSearchParams(window.location.search);
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
-    if (accessToken && refreshToken) {
-      setAccessToken(accessToken);
-      setRefreshToken(refreshToken);
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
-      startTokenRefreshTimer();
-    }
+    // if (accessToken && refreshToken) {
+    //   // setAccessToken(accessToken);
+    //   // setRefreshToken(refreshToken);
+    //   // localStorage.setItem("access_token", accessToken);
+    //   // localStorage.setItem("refresh_token", refreshToken);
+    //   startTokenRefreshTimer();
+    // }
   }, []);
 
   useEffect(() => {
@@ -57,7 +57,8 @@ function PlaylistForm() {
       }
       const data = await res.json();
       setAccessToken(data.access_token);
-      localStorage.setItem("access_token", data.access_token);
+      console.log(accessToken);
+      // localStorage.setItem("access_token", data.access_token);
     } catch (error) {
       console.error("Error refreshing token:", error);
       // Handle token refresh error here (e.g., logout user, show error message)
@@ -78,7 +79,6 @@ function PlaylistForm() {
     const apiUrl = `https://melody-match-api.vercel.app/recommendations?artist_na=${artist_na}&artist_na2=${artist_na2}&genre=${genre}&mood=${mood}&access_token=${accessToken}`;
 
     try {
-      console.log("one");
       const res = await fetch(apiUrl, {
         method: "Get",
         headers: {
@@ -86,7 +86,7 @@ function PlaylistForm() {
           "Refresh-Token": refreshToken,
         },
       });
-      console.log("two");
+
       if (!res.ok) {
         alert("error");
 
@@ -110,15 +110,12 @@ function PlaylistForm() {
       for (let i = 0; i < data.length; i++) {
         uri.push(data[i].uri);
       }
-      // console.log("two");
-      // console.log(uri);
-      // console.log("two");
+
       seturi(uri);
-      // console.log("two");
+
       setFetchedData(data);
-      // console.log("two");
+
       setShowList(true); // Display the list
-      // console.log("two");
     } catch (error) {
       console.log("hi");
 
