@@ -23,7 +23,6 @@ app = FastAPI()
 
 # Password hashing context
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -270,7 +269,7 @@ async def callback(request: Request) -> RedirectResponse:
         refresh_token = body["refresh_token"]
         print(f"Access Token : {access_token}")
         redirect_response = RedirectResponse(
-            url=f"http://127.0.0.1:3000/form?access_token={access_token}&refresh_token={refresh_token}"
+            url=f"https://melodymatchapp.vercel.app/form?access_token={access_token}&refresh_token={refresh_token}"
         )
 
         return redirect_response
