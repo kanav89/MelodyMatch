@@ -16,6 +16,8 @@ function PlaylistForm() {
     const params = new URLSearchParams(window.location.search);
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
     // if (accessToken && refreshToken) {
     //   // setAccessToken(accessToken);
     //   // setRefreshToken(refreshToken);
@@ -56,7 +58,8 @@ function PlaylistForm() {
         throw new Error("Failed to refresh access token");
       }
       const data = await res.json();
-      setAccessToken(data.access_token);
+      console.log(data);
+      setAccessToken(data["access_token"]);
       console.log(accessToken);
       // localStorage.setItem("access_token", data.access_token);
     } catch (error) {
@@ -68,11 +71,11 @@ function PlaylistForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Loading...");
-    const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
+    // const params = new URLSearchParams(window.location.search);
+    // const accessToken = params.get("access_token");
+    // const refreshToken = params.get("refresh_token");
+    // setAccessToken(accessToken);
+    // setRefreshToken(refreshToken);
     console.log("Refresh Token", refreshToken);
     console.log("Access Token", accessToken);
     // added https://melody-match-api.vercel.app
