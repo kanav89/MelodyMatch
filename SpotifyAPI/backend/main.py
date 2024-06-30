@@ -22,9 +22,7 @@ redirect_uri = config("REDIRECT_URI")
 app = FastAPI()
 
 # Password hashing context
-origins = [
-    "http://localhost:3000",  # Replace with your client's origin
-]
+
 
 app.add_middleware(
     CORSMiddleware,

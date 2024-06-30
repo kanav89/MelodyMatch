@@ -92,10 +92,10 @@ function PlaylistForm() {
 
         if (res.status === 401) {
           // Redirect to homepage if 401 error occurs
+          alert("error2");
           window.location.href = "https://melody-match-api.vercel.app/";
           return;
         }
-        alert("error2");
 
         console.log("Response received", res);
         return;
@@ -189,9 +189,9 @@ function PlaylistForm() {
                 className="bg-white border border-gray-300 rounded-md p-2 mt-1 block w-full"
               >
                 <option value="">Select a mood</option>
-                <option value="pop">Happy</option>
-                <option value="rock">Sad</option>
-                <option value="hip-hop">Dance</option>
+                <option value="happy">Happy</option>
+                <option value="sad">Sad</option>
+                <option value="dance">Dance</option>
               </select>
             </div>
           </div>
