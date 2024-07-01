@@ -37,6 +37,11 @@ function First() {
           >
             Sign in with Spotify
           </Button>
+          <footer>
+            (Spotify doesn't allow anyone to access the app since it's
+            development mode. Feel free to email @kanavg004@gmail.com for
+            access.)
+          </footer>
         </div>
       </main>
     </div>
