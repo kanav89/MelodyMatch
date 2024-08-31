@@ -187,10 +187,7 @@ def output(
     mood: str,
     access_token: Optional[str] = Query(None),
 ):
-    # if authorization is None:
-    #     raise HTTPException(status_code=401, detail="Authorization header missing")
 
-    # print(access_token)
     song_instance = SongRecommendation(artist_na, artist_na2, genre, mood)
     song_instance.set_access_token(access_token)
 
