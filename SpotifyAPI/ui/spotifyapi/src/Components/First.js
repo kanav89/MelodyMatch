@@ -1,6 +1,6 @@
 import React from "react";
 import "./First.css";
-import { Button } from "flowbite-react";
+import { Button, Label } from "flowbite-react";
 
 function First() {
   const handleLogin = () => {

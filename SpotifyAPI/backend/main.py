@@ -186,7 +186,6 @@ def output(
     genre: str,
     mood: str,
     access_token: Optional[str] = Query(None),
-    Refresh_Token: Optional[str] = Query(None),
 ):
     # if authorization is None:
     #     raise HTTPException(status_code=401, detail="Authorization header missing")
