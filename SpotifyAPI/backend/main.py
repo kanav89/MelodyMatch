@@ -11,17 +11,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.responses import Response
 
-# from starlette.responses import CORSMiddleware
+    # from starlette.responses import CORSMiddleware
 
 load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
+
 client_secret = os.getenv("CLIENT_SECRET")
 redirect_uri = config("REDIRECT_URI")
 
 app = FastAPI()
 
 # Password hashing context
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,8 +35,12 @@ app.add_middleware(
 
 
 class SongRecommendation:
+    
+    
     def __init__(self, artist_na, artist_na2, genre, mood):
         self.client_id = client_id
+        
+        
         self.client_secret = client_secret
         self.artist_na = artist_na
         self.artist_na2 = artist_na2
@@ -44,8 +50,8 @@ class SongRecommendation:
         self.initialize()
 
     def get_token(self):
-        auth_string = f"{self.client_id}:{self.client_secret}"
-        auth_bytes = auth_string.encode("utf-8")
+        auth_string =f"{self.client_id}:{self.client_secret}"
+        auth_bytes =auth_string.encode("utf-8")
         auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
 
         url = "https://accounts.spotify.com/api/token"
@@ -56,7 +62,7 @@ class SongRecommendation:
         data = {"grant_type": "client_credentials"}
         result = requests.post(url, headers=headers, data=data)
         result.raise_for_status()
-        json_result = result.json()
+        json_result =result.json()
         self.token = json_result["access_token"]
         return self.token
 
@@ -77,7 +83,7 @@ class SongRecommendation:
         }
         print(1)
         print(refresh_token)
-        response = requests.post(url, headers=headers, data=data)
+        response =requests.post(url, headers=headers, data=data)
 
         json_response = response.json()
         print(json_response)
