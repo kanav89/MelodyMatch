@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 import requests
 from decouple import config
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
