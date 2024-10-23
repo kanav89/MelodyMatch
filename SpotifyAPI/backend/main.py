@@ -1,29 +1,21 @@
 import base64
 import os
-from typing import Annotated, Optional
 from urllib.parse import urlencode
 
 import requests
 from decouple import config
 from dotenv import load_dotenv
-from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
-from starlette.responses import Response
-
-    # from starlette.responses import CORSMiddleware
 
 load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
-
 client_secret = os.getenv("CLIENT_SECRET")
 redirect_uri = config("REDIRECT_URI")
 
 app = FastAPI()
-
-# Password hashing context
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,12 +27,8 @@ app.add_middleware(
 
 
 class SongRecommendation:
-    
-    
     def __init__(self, artist_na, artist_na2, genre, mood):
         self.client_id = client_id
-        
-        
         self.client_secret = client_secret
         self.artist_na = artist_na
         self.artist_na2 = artist_na2
@@ -50,8 +38,8 @@ class SongRecommendation:
         self.initialize()
 
     def get_token(self):
-        auth_string =f"{self.client_id}:{self.client_secret}"
-        auth_bytes =auth_string.encode("utf-8")
+        auth_string = f"{self.client_id}:{self.client_secret}"
+        auth_bytes = auth_string.encode("utf-8")
         auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
 
         url = "https://accounts.spotify.com/api/token"
@@ -62,7 +50,7 @@ class SongRecommendation:
         data = {"grant_type": "client_credentials"}
         result = requests.post(url, headers=headers, data=data)
         result.raise_for_status()
-        json_result =result.json()
+        json_result = result.json()
         self.token = json_result["access_token"]
         return self.token
 
@@ -70,7 +58,6 @@ class SongRecommendation:
         self.token = access_token
 
     def refresh_token(self, refresh_token):
-
         url = "https://accounts.spotify.com/api/token"
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -81,12 +68,9 @@ class SongRecommendation:
             "client_id": client_id,
             "client_secret": client_secret,
         }
-        print(1)
-        print(refresh_token)
-        response =requests.post(url, headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=data)
 
         json_response = response.json()
-        print(json_response)
         self.token = json_response["access_token"]
         return self.token
 
@@ -120,21 +104,18 @@ class SongRecommendation:
                 1,
             )
 
-    def add_tracks_to_playlist(self, track_uris: list):
+    def add_tracks_to_playlist(self, track_uris):
         headers = self.get_auth_header()
         headers["Content-Type"] = "application/json"
 
-        # Verify user ID
         url1 = "https://api.spotify.com/v1/me"
         res = requests.get(url1, headers=headers)
         res.raise_for_status()
         user_id = res.json()["id"]
 
-        # Create a new playlist
         url = f"https://api.spotify.com/v1/users/{user_id}/playlists"
         data = {"name": "MelodyMatch"}
         response = requests.post(url, headers=headers, json=data)
-        print(response.json)
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
@@ -144,7 +125,6 @@ class SongRecommendation:
 
         playlist_id = response.json()["id"]
 
-        # Add tracks to the playlist
         url2 = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
         track_uris = {"uris": track_uris}
         dat = requests.post(url2, headers=headers, json=track_uris)
@@ -163,9 +143,7 @@ class SongRecommendation:
     def search_for_artist(self, artist_name):
         url = f"https://api.spotify.com/v1/search?q={artist_name}&type=artist&limit=1"
         header = self.get_auth_header()
-        print(header)
         result = requests.get(url, headers=header)
-        print(result.json())
         json_result = result.json()["artists"]["items"]
         if not json_result:
             return None
@@ -175,9 +153,9 @@ class SongRecommendation:
         self, artist_id, seed_genre, min_valence, max_valence, min_danceability, max_danceability
     ):
         url = (
-            f"https://api.spotify.com/v1/recommendations?limit=20&seed_artists={artist_id}"
-            f"&seed_genres={seed_genre}&min_valence={min_valence}&max_valence={max_valence}"
-            f"&min_danceability={min_danceability}&max_danceability={max_danceability}&market=IN"
+            f"https://api.spotify.com/v1/recommendations?limit=20&seed_artists={artist_id}&"
+            f"seed_genres={seed_genre}&min_valence={min_valence}&max_valence={max_valence}&"
+            f"min_danceability={min_danceability}&max_danceability={max_danceability}&market=IN"
         )
         header = self.get_auth_header()
         result = requests.get(url, headers=header)
@@ -193,14 +171,11 @@ def output(
     mood: str,
     access_token: Optional[str] = Query(None),
 ):
-
     song_instance = SongRecommendation(artist_na, artist_na2, genre, mood)
     song_instance.set_access_token(access_token)
 
     try:
-        song_instance.set_access_token(access_token=access_token)
         result = song_instance.search_for_artist(artist_na)
-
         result2 = song_instance.search_for_artist(artist_na2)
         if not result or not result2:
             raise HTTPException(status_code=404, detail="Artist not found")
@@ -265,15 +240,12 @@ async def callback(request: Request) -> RedirectResponse:
     )
 
     if response.status_code == 200:
-
         body = response.json()
         access_token = body["access_token"]
         refresh_token = body["refresh_token"]
-        print(f"Access Token : {access_token}")
         redirect_response = RedirectResponse(
             url=f"https://melodymatchapp.vercel.app/form?access_token={access_token}&refresh_token={refresh_token}"
         )
-
         return redirect_response
     else:
         return {"error": "Failed to get token"}
@@ -288,21 +260,17 @@ async def save_playlist(
     access_token: Optional[str] = Query(None),
     uri: Optional[str] = Query(None),
 ):
-
-    # Create instance of SongRecommendation class
     song_instance = SongRecommendation(artist_na, artist_na2, genre, mood)
     song_instance.set_access_token(access_token)
 
     try:
-
-        # Get recommendations
         result = song_instance.search_for_artist(artist_na)
         result2 = song_instance.search_for_artist(artist_na2)
         if not result or not result2:
             raise HTTPException(status_code=404, detail="Artist not found")
 
         artist_id = f"{result['id']},{result2['id']}"
-        songs = song_instance.get_recommendations(
+        song_instance.get_recommendations(
             artist_id,
             genre,
             song_instance.min_valence,
@@ -324,18 +292,14 @@ async def save_playlist(
 
 @app.post("/refresh-token")
 async def refresh_token_handler(refresh_token: str = Query(None)):
-
     if refresh_token is None:
         raise HTTPException(status_code=401, detail="Refresh Token header missing")
 
     try:
         song_instance = SongRecommendation("", "", "", "")
-        print(refresh_token)  # You can pass default values or modify as needed
         new_access_token = song_instance.refresh_token(refresh_token)
-        print(refresh_token)
         return JSONResponse(content={"access_token": new_access_token})
 
     except HTTPException as e:
         return JSONResponse(content={"error": e.detail}, status_code=e.status_code)
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
