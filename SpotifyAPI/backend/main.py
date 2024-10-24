@@ -1,9 +1,11 @@
 import base64
 import os
+from typing import Optional
 from urllib.parse import urlencode
 
 import requests
 from decouple import config
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -68,28 +70,43 @@ class SongRecommendation:
             "client_id": client_id,
             "client_secret": client_secret,
         }
+        print(1)
+        print(refresh_token)
         response = requests.post(url, headers=headers, data=data)
 
         json_response = response.json()
+        print(json_response)
         self.token = json_response["access_token"]
         return self.token
 
     def initialize(self):
         if self.mood == "Happy":
             self.min_valence, self.max_valence, self.min_danceability, self.max_danceability = (
-                0.6, 1, 0.5, 0.8,
+                0.6,
+                1,
+                0.5,
+                0.8,
             )
         elif self.mood == "Dance":
             self.min_valence, self.max_valence, self.min_danceability, self.max_danceability = (
-                0.8, 1, 0.8, 1,
+                0.8,
+                1,
+                0.8,
+                1,
             )
         elif self.mood == "Sad":
             self.min_valence, self.max_valence, self.min_danceability, self.max_danceability = (
-                0.0, 0.4, 0.2, 0.5,
+                0.0,
+                0.4,
+                0.2,
+                0.5,
             )
         else:
             self.min_danceability, self.min_valence, self.max_valence, self.max_danceability = (
-                0, 0, 1, 1,
+                0,
+                0,
+                1,
+                1,
             )
 
     def add_tracks_to_playlist(self, track_uris: list):
@@ -104,6 +121,7 @@ class SongRecommendation:
         url = f"https://api.spotify.com/v1/users/{user_id}/playlists"
         data = {"name": "MelodyMatch"}
         response = requests.post(url, headers=headers, json=data)
+        print(response.json)
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
@@ -131,7 +149,9 @@ class SongRecommendation:
     def search_for_artist(self, artist_name):
         url = f"https://api.spotify.com/v1/search?q={artist_name}&type=artist&limit=1"
         header = self.get_auth_header()
+        print(header)
         result = requests.get(url, headers=header)
+        print(result.json())
         json_result = result.json()["artists"]["items"]
         if not json_result:
             return None
@@ -163,7 +183,6 @@ def output(
     song_instance.set_access_token(access_token)
 
     try:
-        song_instance.set_access_token(access_token=access_token)
         result = song_instance.search_for_artist(artist_na)
         result2 = song_instance.search_for_artist(artist_na2)
         if not result or not result2:
@@ -289,6 +308,4 @@ async def refresh_token_handler(refresh_token: str = Query(None)):
     try:
         song_instance = SongRecommendation("", "", "", "")
         print(refresh_token)
-        new_access_token = song_instance.refresh_token(refresh_token)
-        print(refresh_token)
-        return JSONResponse(content={"access_token": new_access_token
+        new_access
