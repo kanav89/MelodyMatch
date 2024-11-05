@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextInput, Button, Label, Alert } from "flowbite-react";
 
 function PlaylistForm() {
+  
   const [artist_na, setArtist_na] = useState("");
   const [artist_na2, setArtist_na2] = useState("");
   const [genre, setGenre] = useState(""); // Store the selected genre value
