@@ -12,7 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.responses import Response
 
-    # from starlette.responses import CORSMiddleware
 
 load_dotenv()
 
@@ -22,8 +21,6 @@ client_secret = os.getenv("CLIENT_SECRET")
 redirect_uri = config("REDIRECT_URI")
 
 app = FastAPI()
-
-# Password hashing context
 
 
 app.add_middleware(
